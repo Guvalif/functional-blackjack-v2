@@ -1,0 +1,15 @@
+{
+  "name": "functional-blackjack-v2",
+  "version": "2.0.0",
+  "description": "Functional Blackjack Implementation Using Ramda.js & Purify",
+  "private": true,
+  "scripts": {
+    "start": "node index.mjs"
+  },
+  "author": "Chatwork Co., Ltd.",
+  "license": "MIT",
+  "dependencies": {
+    "purify-ts": "^2.0.0",
+    "ramda": "^0.29.0"
+  }
+}

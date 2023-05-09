@@ -113,12 +113,13 @@ const judge = (scoreMaybe, name) => scoreMaybe.caseOf({
 });
 
 
-/** @type {() => EitherAsync<string, null>} */
-const prompt = () => EitherAsync.fromPromise(async () => {
-    const io = createInterface({ input, output });
-    const result = await io.question('Do you hit ? (Enter / Others) ');
+/** @typedef { import('node:readline').ReadLineOptions } IO */
+/** @type {(_: IO) => EitherAsync<string, null>} */
+const prompt = (io) => EitherAsync.fromPromise(async () => {
+    const cli = createInterface(io);
+    const result = await cli.question('Do you hit ? (Enter / Others) ');
 
-    io.close();
+    cli.close();
 
     return (result !== '') ? Left('See you !') : Right(null);
 });
@@ -127,6 +128,7 @@ const prompt = () => EitherAsync.fromPromise(async () => {
 // Application Entry Point
 // ============================================================================
 
+const io = { input, output };
 const game = prepareGame(SUIT);
 
 /** @type {(_: number) => void} */
@@ -142,7 +144,7 @@ const main = (turn) => {
         Right : (xs) => console.log(`Turn ${turn} --`, xs.join(', ')),
     });
 
-    EitherAsync.liftEither(showdown).chain(() => prompt()).caseOf({
+    EitherAsync.liftEither(showdown).chain(() => prompt(io)).caseOf({
         Left  : (x) => console.log(x),
         Right : ()  => main(turn + 1),
     });

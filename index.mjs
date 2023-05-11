@@ -109,7 +109,7 @@ const hit = (turn) => R.pipe(
 /** @type {(_: Maybe<number>, _: string) => Either<string, string>} */
 const judge = (scoreMaybe, name) => scoreMaybe.caseOf({
     Nothing : ()  => Left(`${name} Bust !`),
-    Just    : (x) => (x === 21) ? Left(`${name} Black Jack !`) : Right(`${name}: ${x}`),
+    Just    : (x) => (x === 21) ? Left(`${name} Blackjack !`) : Right(`${name}: ${x}`),
 });
 
 

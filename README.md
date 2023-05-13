@@ -8,7 +8,7 @@ Functional Blackjack Implementation Using Ramda.js & Purify
 See also:
 
 - [イベントページ](https://talent.supporterz.jp/events/9a3fb263-ae00-44b0-b7cd-8c38b8f7a411/)
-- [講演スライド (WIP)](#)
+- [講演スライド](https://guvalif.github.io/functional-blackjack-v2/)
 
 ## How to Use
 

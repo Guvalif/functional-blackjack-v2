@@ -23,19 +23,19 @@ import { EitherAsync } from 'purify-ts/EitherAsync';
 
 /** @type {Record<Card, number[]>} */
 const POINT_TABLE = {
-    'A'  : [ 1, 11 ],
-    'N2' : [ 2 ],
-    'N3' : [ 3 ],
-    'N4' : [ 4 ],
-    'N5' : [ 5 ],
-    'N6' : [ 6 ],
-    'N7' : [ 7 ],
-    'N8' : [ 8 ],
-    'N9' : [ 9 ],
-    'N10': [ 10 ],
-    'J'  : [ 10 ],
-    'Q'  : [ 10 ],
-    'K'  : [ 10 ],
+  'A'  : [ 1, 11 ],
+  'N2' : [ 2 ],
+  'N3' : [ 3 ],
+  'N4' : [ 4 ],
+  'N5' : [ 5 ],
+  'N6' : [ 6 ],
+  'N7' : [ 7 ],
+  'N8' : [ 8 ],
+  'N9' : [ 9 ],
+  'N10': [ 10 ],
+  'J'  : [ 10 ],
+  'Q'  : [ 10 ],
+  'K'  : [ 10 ],
 };
 
 
@@ -61,23 +61,23 @@ const calcScores = R.reduce(addA2, [ 0 ]);
 
 /** @type {(_: number[]) => Maybe<number>} */
 const extractValidScore = R.pipe(
-    R.filter(R.gte(21)),
-    (xs) => Math.max(...xs),
-    Maybe.fromPredicate((x) => x !== - Infinity),
+  R.filter(R.gte(21)),
+  (xs) => Math.max(...xs),
+  Maybe.fromPredicate((x) => x !== - Infinity),
 );
 
 
 /** @type {(_: () => number) => (_: Card[]) => Card[]} */
 const shuffleSuit = (random) => (suit) => {
-    let shuffledSuit = R.clone(suit);
+  let shuffledSuit = R.clone(suit);
 
-    for (let i = suit.length - 1; i > 0; i--) {
-        const j = Math.floor(random() * (i + 1));
+  for (let i = suit.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
 
-        [ shuffledSuit[i], shuffledSuit[j] ] = [ shuffledSuit[j], shuffledSuit[i] ];
-    }
+    [ shuffledSuit[i], shuffledSuit[j] ] = [ shuffledSuit[j], shuffledSuit[i] ];
+  }
 
-    return shuffledSuit;
+  return shuffledSuit;
 };
 
 
@@ -91,37 +91,39 @@ const getEvenSuit = R.addIndex(R.filter)((_, i) => i % 2 === 0);
 
 /** @type {(_: Card[]) => Record<'Player' | 'Dealer', Card[]>} */
 const prepareGame = R.pipe(
-    shuffleSuit(Math.random),
-    R.juxt([ getOddSuit, getEvenSuit ]),
-    R.zipObj([ 'Player', 'Dealer' ]),
+  shuffleSuit(Math.random),
+  R.juxt([ getOddSuit, getEvenSuit ]),
+  R.zipObj([ 'Player', 'Dealer' ]),
 );
 
 
 /** @type {(_: number) => (_: Card[]) => Maybe<number>} */
 const hit = (turn) => R.pipe(
-    R.take(turn + 2),
-    toPoints,
-    calcScores,
-    extractValidScore,
+  R.take(turn + 2),
+  toPoints,
+  calcScores,
+  extractValidScore,
 );
 
 
 /** @type {(_: Maybe<number>, _: string) => Either<string, string>} */
 const judge = (scoreMaybe, name) => scoreMaybe.caseOf({
-    Nothing : ()  => Left(`${name} Bust !`),
-    Just    : (x) => (x === 21) ? Left(`${name} Blackjack !`) : Right(`${name}: ${x}`),
+  Nothing : ()  => Left(`${name} Bust !`),
+  Just    : (x) => (x === 21) ? Left(`${name} Blackjack !`) : Right(`${name}: ${x}`),
 });
 
 
-/** @typedef { import('node:readline').ReadLineOptions } IO */
-/** @type {(_: IO) => EitherAsync<string, null>} */
+/**
+ * @typedef { import('node:readline').ReadLineOptions } IO
+ * @type {(_: IO) => EitherAsync<string, null>}
+ */
 const prompt = (io) => EitherAsync.fromPromise(async () => {
-    const cli = createInterface(io);
-    const result = await cli.question('Do you hit ? (Enter / Others) ');
+  const cli = createInterface(io);
+  const result = await cli.question('Do you hit ? (Enter / Others) ');
 
-    cli.close();
+  cli.close();
 
-    return (result !== '') ? Left('See you !') : Right(null);
+  return (result !== '') ? Left('See you !') : Right(null);
 });
 
 
@@ -133,21 +135,21 @@ const game = prepareGame(SUIT);
 
 /** @type {(_: number) => void} */
 const main = (turn) => {
-    assert.ok(turn >= 0);
+  assert.ok(turn >= 0);
 
-    const score = R.map(hit(turn))(game);
-    const result = R.mapObjIndexed(judge)(score);
-    const showdown = Either.sequence(R.values(result));
+  const score = R.map(hit(turn))(game);
+  const result = R.mapObjIndexed(judge)(score);
+  const showdown = Either.sequence(R.values(result));
 
-    showdown.caseOf({
-        Left  : ()   => {},
-        Right : (xs) => console.log(`Turn ${turn} --`, xs.join(', ')),
-    });
+  showdown.caseOf({
+    Left  : ()   => {},
+    Right : (xs) => console.log(`Turn ${turn} --`, xs.join(', ')),
+  });
 
-    EitherAsync.liftEither(showdown).chain(() => prompt(io)).caseOf({
-        Left  : (x) => console.log(x),
-        Right : ()  => main(turn + 1),
-    });
+  EitherAsync.liftEither(showdown).chain(() => prompt(io)).caseOf({
+    Left  : (x) => console.log(x),
+    Right : ()  => main(turn + 1),
+  });
 };
 
 main(0);
